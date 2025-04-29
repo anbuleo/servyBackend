@@ -3,6 +3,8 @@ import env from 'dotenv';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import Router from './src/routes/index.js';
+import passport from './src/config/passport.js';
+
 
 env.config();
 
@@ -15,6 +17,8 @@ app.use(bodyParser.json());
 app.use(cors());
 
 let PORT = process.env.PORT || 5000;
+app.use(passport.initialize());
+
 
 app.use('/api', Router);
 

@@ -2,9 +2,11 @@ import User from '../models/userModel.js';
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { errorHandler } from '../utils/errorHandler.js';
+import passport from 'passport';
 
 
-const signUp = async (req, res,next) => {
+
+const signUp = async (req, res,next) => {    
     try {
         const { firstName, lastName, email, password, mobile, address } = req.body;
 
@@ -39,7 +41,32 @@ const signUp = async (req, res,next) => {
     }
 };
 
+const googlesignup = async(req,res,next)=>{
+   
+    try {
+        const { user, token } = req.user;
+        if (!user || !token) {
+            return next(errorHandler(401,'Authentication failed'))
+          }
+        res.json({
+          success: true,
+          token,
+          user: {
+            id: user._id,
+            email: user.email,
+            firstName: user.firstName,
+            role: user.role,
+            mobile: user.mobile,
+          },
+        });
+      } catch (error) {
+        res.status(500).json({ success: false, message: "OAuth failed", error });
+      }
+    
+    }
+
 
 export default {
-    signUp
+    signUp,
+    googlesignup
 }
