@@ -9,7 +9,7 @@ let name = process.env.DB_NAME;
 
 try {
     mongoose.connect(`${url}/${name}`)
-    console.log("Database connected"); 
+    console.log("✅ Database connected"); 
 } catch (error) {
     console.log(error);
 }
