@@ -100,7 +100,7 @@ const signUp = async (req, res, next) => {
       return next(errorHandler(400, "All fields are required"));
     }
 
-    // Check if the user already exists
+    
     const existingEmail = await User.findOne({ email });
     const existingMobile = await User.findOne({ mobile });
 
@@ -108,11 +108,10 @@ const signUp = async (req, res, next) => {
       return next(errorHandler(400, "User already exists"));
     }
 
-    // Hash the password before saving
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Create new user
+  
     const user = new User({
       firstName,
       lastName,
