@@ -105,6 +105,7 @@ const googlesignup = async(req,res,next)=>{
       
           res.status(200).json({
             message: "OTP sent to your email. Please verify it to complete signup.",
+            otp
           });
         } catch (error) {
           next(error);
