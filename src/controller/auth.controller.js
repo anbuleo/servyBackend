@@ -90,15 +90,19 @@ const googlesignup = async(req,res,next)=>{
       const sendOTP = async (req, res, next) => {
         try {
           const { email } = req.body;
+
       
           if (!email) {
             return next(errorHandler(400, "Email is required"));
           }
+          const generateOTP = ()=> {
+            return crypto.randomInt(100000,999999).toString()
+          }
       
           const otp = generateOTP();
-          const expiresAt = Date.now() + 5 * 60 * 1000;
+          // const expiresAt = Date.now() + 5 * 60 * 1000;
       
-          otpStore[email] = { otp, expiresAt };
+          // otpStore[email] = { otp, expiresAt };
       
           // Send OTP to user's email
           await sendOtpEmail(email, otp);
