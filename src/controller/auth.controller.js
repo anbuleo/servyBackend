@@ -198,8 +198,9 @@ const googlesignup = async(req,res,next)=>{
           const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
             expiresIn: "15m",
           });
+          let url = process.env.FORNTENDURL
       
-          const resetLink = `http://localhost:3000/reset-password/${token}`; // Change URL to your frontend
+          const resetLink = `${url}/reset-password/${token}`; // Change URL to your frontend
       
           const transporter = nodemailer.createTransport({
             service: "gmail",
