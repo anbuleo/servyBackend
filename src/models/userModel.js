@@ -3,7 +3,7 @@ import mongoose from "../config/db.connect.js";
 
 const userSchema = new mongoose.Schema({
     googleId: { type: String, default: null },
-    firstName: {type:String,required:true,unique:true},
+    firstName: {type:String,required:true},
     lastName: {type:String,default:null},
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
