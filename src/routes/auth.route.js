@@ -12,7 +12,7 @@ router.post('/signup',  authController.signUp);
 router.get("/google",
     passport.authenticate("google", { scope: ["profile", "email", "https://www.googleapis.com/auth/user.phonenumbers.read"] })
 );
-router.get("/google/callback",passport.authenticate("google", {scope: ["profile", "email", "https://www.googleapis.com/auth/user.phonenumbers.read"], session: false, failureRedirect: "/auth/google/failure" }),authController.googlesignup)
+router.get("/google/callback",passport.authenticate("google", {scope: ["profile", "email", "https://www.googleapis.com/auth/user.phonenumbers.read"], session: false, failureRedirect: "http://localhost:5173" ,successRedirect:"http://localhost:5173"}),authController.googlesignup)
 router.get("/auth/google/failure", (req, res) => {
     res.status(401).json({ success: false, message: "Google authentication failed" });
   });
