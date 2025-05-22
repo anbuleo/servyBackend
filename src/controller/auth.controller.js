@@ -5,9 +5,10 @@ import { errorHandler } from '../utils/errorHandler.js';
 import passport from 'passport';
 import crypto from "crypto";
 import nodemailer from "nodemailer";
-
+import env from 'dotenv'
+env.config()
 const otpStore = {};
-
+let SALT = process.env.SALT
 const signUp = async (req, res,next) => {    
     try {
         const { firstName, lastName, email, password, mobile, address } = req.body;
@@ -150,16 +151,18 @@ const googlesignup = async(req,res,next)=>{
       };
       
       const signIn = async (req, res, next) => {
-        try {
-          const { email, password } = req.body;
+         try {
+          const { emailOrMobile, password } = req.body;
       
           // Validate input
-          if (!email || !password) {
-            return next(errorHandler(400, "Email and password are required"));
+          if (!emailOrMobile || !password) {
+            return next(errorHandler(400, "Email/mobile and password are required"));
           }
       
           // Check if user exists
-          const user = await User.findOne({ email });
+          const user = await User.findOne({
+            $or: [{ email: emailOrMobile }, { mobile: emailOrMobile }]
+          });
           if (!user) {
             return next(errorHandler(404, "User not found"));
           }
@@ -171,22 +174,16 @@ const googlesignup = async(req,res,next)=>{
           }
       
           // Generate JWT token
-          const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-            expiresIn: "1d",
+          const token = jwt.sign({ id: user._id,role:user.role }, process.env.JWT_SECRET, {
+            expiresIn: process.env.JWT_EXP,
           });
-      
+          const {password:pass, ...rest} = user._doc
           // Send response
-          res.status(200).json({
+
+          res.status(200).json({            
             message: "Login successful",
             token,
-            user: {
-              id: user._id,
-              firstName: user.firstName,
-              lastName: user.lastName,
-              email: user.email,
-              mobile: user.mobile,
-              address: user.address,
-            },
+            rest
           });
         } catch (error) {
           next(error);
@@ -254,7 +251,52 @@ const googlesignup = async(req,res,next)=>{
           return next(errorHandler(400, "Invalid or expired token"));
         }
       };
-      
+        const firebaseOauth = async (req, res, next) => { 
+        try {
+          const user = await User.findOne({email: req.body.email})
+          if(user){
+            const token = jwt.sign({ id: user._id,role:user.role }, process.env.JWT_SECRET, {
+              expiresIn: process.env.JWT_EXP,
+            });
+            const {password:pass, ...rest} = user._doc
+
+            res.status(200).json({            
+              message: "Login successful",
+              token,
+              rest
+            });
+          }else{
+            const generatedPassword =Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+            const hashedPassword = bcrypt.hashSync(generatedPassword,SALT);
+            const newUser = new User({name:req.body.name, email:req.body.email,password:hashedPassword,mobile:req.body.mobile})
+            await newUser.save()
+            const token = jwt.sign({id: newUser._id,role:newUser.role},process.env.JWT_SECRET,{expiresIn:process.env.JWT_EXP})
+            const {password:pass, ...rest} = newUser._doc
+            // res.cookie('access_token', token, {
+            //     httpOnly: true, // The cookie cannot be accessed through client-side scripts
+            //     secure: true, // Send the cookie only over HTTPS (in a production environment)
+            //     sameSite: 'none', // Protect against CSRF attacks
+            //     expires: new Date(Date.now() + 3600000), // Cookie expiration time (1 hour in milliseconds)
+            //   }).status(201).json(rest)
+            res.status(201).json({token,rest})
+
+            // res.cookie('access_token',token,{httpOnly:false,sameSite: 'none',secure:true}).status(200).json(rest)
+
+        }
+        } catch (error) {
+          next(error)
+        }
+      };
+
+      const verifytokenreq = async (req,res,next)=>{
+        try{
+          res.status(200).json({
+            message:'Token verified'
+          })
+        }catch(error){
+          next(error)
+        }
+      }
       
 export default {
     signUp,
@@ -263,5 +305,5 @@ export default {
     verifyOTP,
     forgotPasswordLink,
     resetPasswordWithToken,
-    signIn
+    signIn,firebaseOauth,verifytokenreq
 }

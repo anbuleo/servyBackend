@@ -21,8 +21,9 @@ router.get("/auth/google/failure", (req, res) => {
     router.post("/send-otp", authController.sendOTP);
     router.post("/verify-otp", authController.verifyOTP);
     router.post("/signin", authController.signIn);
-        router.post("/forget", authController.forgotPasswordLink);
-        router.post("/reset/:token", authController.resetPasswordWithToken);
-
+    router.post("/forget", authController.forgotPasswordLink);
+    router.post("/reset/:token", authController.resetPasswordWithToken);
+    router.post("/firebase", authController.firebaseOauth);
+    router.get("/verify",verifyUser,authController.verifytokenreq)
 
 export default router
