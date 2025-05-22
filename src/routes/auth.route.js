@@ -1,7 +1,7 @@
 import express from "express";
 import authController from "../controller/auth.controller.js";
 import passport from "passport";
-
+import { verifyUser } from "../utils/verifyUser.js";
 
 const router = express.Router();
 
