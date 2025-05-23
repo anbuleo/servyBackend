@@ -14,11 +14,23 @@ const app = express();
 app.use(express.json())
 app.use(bodyParser.json());
 
+const allowedOrigins = [
+  'http://localhost:5173',
+  
+  'https://servyservice.netlify.app',
+  'https://www.servy.co.in'
+];
+
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
-
 let PORT = process.env.PORT || 5000;
 app.use(passport.initialize());
 
